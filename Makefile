@@ -6,7 +6,8 @@ dependencies:
 	glide install --strip-vendor
 
 build:
-	go build
+	@mkdir -p bin/
+	go build -o ./bin/chargeback
 
 test:
 	go test -v ./...
