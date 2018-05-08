@@ -1,2 +1,4 @@
 package: github.com/Intellection/chargeback
-import: []
+import:
+  - package: k8s.io/client-go
+    version: v7.0.0
