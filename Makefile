@@ -1,10 +1,10 @@
 SHELL := /bin/bash
 
 install:
-  glide install --strip-vendor
+	glide install --strip-vendor
 
 build:
-  go build
+	go build
 
 test:
-  go test -v ./...
+	go test -v ./...
