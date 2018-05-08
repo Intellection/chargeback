@@ -1,0 +1,6 @@
+hash: dd8b7feb25e69d630b140da2877f4f14347b8682e16dbfe5c5a5a735960c3b7e
+updated: 2018-05-08T15:10:43.356783+03:00
+imports:
+- name: k8s.io/client-go
+  version: 23781f4d6632d88e869066eaebb743857aa1ef9b
+testImports: []
