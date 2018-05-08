@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-install:
+dependencies:
 	glide install --strip-vendor
 
 build:
