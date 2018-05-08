@@ -1,10 +1,16 @@
 SHELL := /bin/bash
 
-install:
-  glide install --strip-vendor
+.PHONY: dependencies build install test
+
+dependencies:
+	glide install --strip-vendor
 
 build:
-  go build
+	@mkdir -p bin/
+	go build -o ./bin/chargeback
+
+install:
+	go install
 
 test:
-  go test -v ./...
+	go test -v ./...
