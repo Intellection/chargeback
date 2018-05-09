@@ -1,7 +1,6 @@
 package kubernetes
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"os/signal"
@@ -10,20 +9,15 @@ import (
 
 	"github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
-
-	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/fields"
+
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
 type KubernetesAgent struct {
-	interval           time.Duration
-	kubeClient         *kubernetes.Clientset
-	nodeSharedInformer *cache.SharedInformer
-	podSharedInformer  *cache.SharedInformer
+	interval  time.Duration
+	clientset kubernetes.Interface
 }
 
 func NewKubernetesAgent(interval time.Duration) *KubernetesAgent {
@@ -100,59 +94,24 @@ func (agent *KubernetesAgent) init() error {
 		return err
 	}
 
-	agent.kubeClient = clientset
-	agent.nodeSharedInformer = agent.createNodeSharedInformer()
-	agent.podSharedInformer = agent.createPodSharedInformer()
+	agent.clientset = clientset
 
 	return nil
 }
 
-func (agent *KubernetesAgent) createNodeSharedInformer() *cache.SharedInformer {
-	lw := cache.NewListWatchFromClient(agent.kubeClient.CoreV1().RESTClient(), "nodes", metav1.NamespaceAll, fields.Everything())
-	si := cache.NewSharedInformer(lw, &v1.Node{}, 5*time.Minute)
-
-	go si.Run(context.Background().Done())
-
-	return &si
-}
-
-func (agent *KubernetesAgent) createPodSharedInformer() *cache.SharedInformer {
-	lw := cache.NewListWatchFromClient(agent.kubeClient.CoreV1().RESTClient(), "pods", metav1.NamespaceAll, fields.Everything())
-	si := cache.NewSharedInformer(lw, &v1.Pod{}, 5*time.Minute)
-
-	go si.Run(context.Background().Done())
-
-	return &si
-}
-
-// // cloud agnostic
-// type NodeCostInfo struct {
-// 	CostPerHour decimal.Decimal
-// }
-//
-// func (nci *NodeCostInfo) CPUCostPerHour() decimal.Decimal {
-//
-// }
-//
-// func (nci *NodeCostInfo) MemoryCostPerHour() decimal.Decimal {
-//
-// }
-//
-// type PodCostInfo struct{}
-
 func (agent *KubernetesAgent) collect() {
 
-	// initial list of nodes
-	nodeList := (*agent.nodeSharedInformer).GetStore().List()
+	costService := NewCostService()
 
-	// // enrich node info with costs
-	// for node := range nodeList {
-	// 	// get node info from cloud provider
-	// 	cloudprovider.Pricing().GetNodeCost(node)
-	// }
+	nodes, err := agent.clientset.CoreV1().Nodes().List(metav1.ListOptions{})
+	if err != nil {
+		log.Error(err)
+	}
 
-	podList := (*agent.podSharedInformer).GetStore().List()
+	pods, err := agent.clientset.CoreV1().Pods(metav1.NamespaceAll).List(metav1.ListOptions{})
+	if err != nil {
+		log.Error(err)
+	}
 
-	log.Infof("There are %d nodes in the cluster", len(nodeList))
-	log.Infof("There are %d pods in the cluster", len(podList))
+	costService.process(nodes.Items, pods.Items)
 }

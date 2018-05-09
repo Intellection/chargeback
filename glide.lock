@@ -1,10 +1,6 @@
 hash: dd8b7feb25e69d630b140da2877f4f14347b8682e16dbfe5c5a5a735960c3b7e
-updated: 2018-05-09T00:26:48.531483+03:00
+updated: 2018-05-09T12:26:49.256075+03:00
 imports:
-- name: github.com/davecgh/go-spew
-  version: 782f4967f2dc4564575ca782fe2d04090b5faca8
-  subpackages:
-  - spew
 - name: github.com/fsnotify/fsnotify
   version: 4da3e2cfbabc9f751898f250b49f2439785783a1
 - name: github.com/ghodss/yaml
@@ -32,10 +28,6 @@ imports:
   - OpenAPIv2
   - compiler
   - extensions
-- name: github.com/hashicorp/golang-lru
-  version: a0d98a5f288019575c6d1f4bb1573fef2d1fcdc4
-  subpackages:
-  - simplelru
 - name: github.com/hashicorp/hcl
   version: 42e33e2d55a0ff1d6263f738896ea8c13571a8d0
   subpackages:
@@ -63,6 +55,8 @@ imports:
   version: d0303fe809921458f417bcf828397a65db30a7e4
 - name: github.com/pelletier/go-toml
   version: 2009e44b6f182e34d8ce081ac2767622937ea3d4
+- name: github.com/shopspring/decimal
+  version: 2df3e6ddaf6e9531dd02d7b6337f2d310f5e4f22
 - name: github.com/sirupsen/logrus
   version: f006c2ac4710855cf0f916dd6b77acf6b048dc6e
 - name: github.com/spf13/afero
@@ -150,7 +144,6 @@ imports:
   - pkg/api/meta
   - pkg/api/resource
   - pkg/api/resource
-  - pkg/apis/meta/internalversion
   - pkg/apis/meta/v1
   - pkg/apis/meta/v1/unstructured
   - pkg/apis/meta/v1beta1
@@ -171,9 +164,7 @@ imports:
   - pkg/selection
   - pkg/types
   - pkg/types
-  - pkg/util/cache
   - pkg/util/clock
-  - pkg/util/diff
   - pkg/util/errors
   - pkg/util/framer
   - pkg/util/intstr
@@ -230,19 +221,15 @@ imports:
   - rest
   - rest/watch
   - tools/auth
-  - tools/cache
   - tools/clientcmd
   - tools/clientcmd/api
   - tools/clientcmd/api/latest
   - tools/clientcmd/api/v1
   - tools/metrics
-  - tools/pager
   - tools/reference
   - transport
-  - util/buffer
   - util/cert
   - util/flowcontrol
   - util/homedir
   - util/integer
-  - util/retry
 testImports: []
