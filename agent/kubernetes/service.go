@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/influxdata/influxdb/client/v2"
+	"github.com/shopspring/decimal"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/api/core/v1"
 )
@@ -54,4 +55,27 @@ func (cs *CostService) processRawData(nodes []v1.Node, pods []v1.Pod) {
 
 		os.Exit(0)
 	}
+}
+
+func nodeCost(instanceTypeCost decimal.Decimal, diskCost decimal.Decimal) (decimal.Decimal, error) {
+	// Given a node's base instance type cost, together with any additional costs such as the SSD
+	// nodeCost() will return the total cost per month of the node as:
+	// instance_type cost + any SSD mounted on the instance.
+	// return (instanceTypeCost + diskCost), nil
+	return decimal.NewFromString("100.00") // Mocking out $100 for now, per month
+}
+
+func podCost(pod PodInfo, node NodeInfo) (decimal.Decimal, error) {
+	// Given a pod's CPU and Memory request, together with the pod's node and it's:
+	// Node cost, allocatable CPU, allocatable Memory, Total CPU, Total Memory,
+	// podCost returns a dollar value cost per month which is a fraction of the node's cost
+	cpuReq := float64(pod.cpuRequest)
+	memReq := float64(pod.memRequest)
+	nodeCost := node.cost
+	allocatableCPU := float64(node.allocatableCPU)
+	allocatableMemory := float64(node.allocatableMemory)
+	capacityCPU := float64(node.capacityCPU)
+	capacityMemory := float64(node.capacityMemory)
+
+	return decimal.NewFromString("1.00")
 }
