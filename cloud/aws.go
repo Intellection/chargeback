@@ -10,12 +10,12 @@ import (
 	"github.com/cristim/ec2-instances-info"
 )
 
-// An AWS EBS volume
+// AWSEBSVolume is an AWS EBS volume
 type AWSEBSVolume struct {
 	ID string
 }
 
-// An AWS EBS instance
+// AWSInstance is an AWS EBS instance
 type AWSInstance struct {
 	ID         string
 	EBSVolumes []AWSEBSVolume
@@ -23,7 +23,7 @@ type AWSInstance struct {
 	Type       string
 }
 
-// Get information on an AWS instance
+// GetAWSInstanceInfo gets information on an AWS instance
 func GetAWSInstanceInfo(id string, region string) (AWSInstance, error) {
 	var instance AWSInstance
 
@@ -64,7 +64,7 @@ func GetAWSInstanceInfo(id string, region string) (AWSInstance, error) {
 	return instance, nil
 }
 
-// Fetch current AWS on-demand price of an instance.
+// GetAWSInstanceOnDemandHourlyPrice fetches current AWS on-demand price of an instance.
 func GetAWSInstanceOnDemandHourlyPrice(instance *AWSInstance) (float64, error) {
 	var pricePerHour float64
 
