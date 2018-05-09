@@ -51,7 +51,19 @@ func (agent *KubernetesAgent) Run() {
 		sig := <-sigs
 		fmt.Println()
 		fmt.Println(sig)
-		quitting = true
+
+		if sig == syscall.SIGINT {
+			// For ease of development
+			log.Info("Received SIGINT")
+			log.Info("immediately force stopping the kubernetes agent...")
+			os.Exit(0)
+		}
+
+		if sig == syscall.SIGTERM {
+			log.Info("Received SIGTERM")
+			quitting = true
+		}
+
 	}()
 
 	tick := time.Tick(agent.interval)
