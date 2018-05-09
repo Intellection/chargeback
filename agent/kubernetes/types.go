@@ -8,12 +8,12 @@ type NodeInfo struct {
 	cloudProvider     string
 	cost              decimal.Decimal
 	externalID        string
-	allocatableMemory int64
-	allocatableCPU    int64
-	capacityMemory    int64
-	capacityCPU       int64
-	utilizedCPU       int
-	utilizedMemory    int
+	capacityMemory    int64 // Full memory capacity of the node in megabytes
+	capacityCPU       int64 // Number of CPUs the node has access to
+	allocatableMemory int64 // Full memory capacity minus OS/docker overhead.
+	allocatableCPU    int64 // Number of CPUs the Kubernetes has access to (same as capacityCPU)
+	utilizedCPU       int   // Total utilized CPU used by scheduled pods on the node
+	utilizedMemory    int   // Total utilized memory used by scheduled pods on the node
 }
 
 type PodInfo struct {
