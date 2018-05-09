@@ -117,4 +117,6 @@ func (agent *KubernetesAgent) collect() {
 	}
 
 	costService.processRawData(nodes.Items, pods.Items)
+	costService.calculatePodCosts()
+	costService.storePodCosts()
 }
