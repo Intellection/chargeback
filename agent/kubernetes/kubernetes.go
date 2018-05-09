@@ -67,7 +67,7 @@ func (agent *KubernetesAgent) Run() {
 	for _ = range tick {
 		log.Info("scraping info from kubernetes...")
 
-		agent.collect()
+		agent.work()
 
 		if quitting {
 			log.Info("stopping the kubernetes agent...")
@@ -83,7 +83,7 @@ func (agent *KubernetesAgent) init() error {
 		return err
 	}
 
-	kubeconfig := home + "/.kube/custom_config/sandbox_kube_config.yml"
+	kubeconfig := home + "/.kube/custom_config/production_kube_config.yml"
 
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 
@@ -102,7 +102,7 @@ func (agent *KubernetesAgent) init() error {
 	return nil
 }
 
-func (agent *KubernetesAgent) collect() {
+func (agent *KubernetesAgent) work() {
 
 	costService := NewCostService(agent.influxdbClient)
 

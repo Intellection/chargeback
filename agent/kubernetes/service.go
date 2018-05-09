@@ -2,6 +2,7 @@ package kubernetes
 
 import (
 	"strings"
+	"time"
 
 	"github.com/influxdata/influxdb/client/v2"
 	"github.com/shopspring/decimal"
@@ -96,8 +97,42 @@ func (cs *CostService) calculatePodCosts() {
 }
 
 func (cs *CostService) storePodCosts() {
+	bp, err := client.NewBatchPoints(client.BatchPointsConfig{
+		Database:  "chargeback",
+		Precision: "s",
+	})
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	for _, podInfo := range cs.podInfoList {
-		log.Infof("Pod (%s) cost: %s", podInfo.name, podInfo.cost.StringFixed(2))
+		tags := make(map[string]string)
+		for key, value := range podInfo.labels {
+			tags[key] = value
+		}
+
+		tags["pod_name"] = podInfo.name
+		tags["node_name"] = podInfo.nodeName
+		tags["namespace"] = podInfo.namespace
+
+		podCost, _ := podInfo.cost.Float64()
+
+		fields := map[string]interface{}{
+			"monthly_cost": podCost,
+		}
+
+		pt, err := client.NewPoint("cost", tags, fields, time.Now())
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		bp.AddPoint(pt)
+	}
+
+	// Write the batch
+	if err := cs.influxdbClient.Write(bp); err != nil {
+		log.Fatal(err)
 	}
 }
 
