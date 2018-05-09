@@ -7,6 +7,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/influxdata/influxdb/client/v2"
 	"github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -16,13 +17,15 @@ import (
 )
 
 type KubernetesAgent struct {
-	interval  time.Duration
-	clientset kubernetes.Interface
+	interval       time.Duration
+	influxdbClient client.Client
+	clientset      kubernetes.Interface
 }
 
-func NewKubernetesAgent(interval time.Duration) *KubernetesAgent {
+func NewKubernetesAgent(influxdbClient client.Client, interval time.Duration) *KubernetesAgent {
 	return &KubernetesAgent{
-		interval: interval,
+		interval:       interval,
+		influxdbClient: influxdbClient,
 	}
 }
 
@@ -113,5 +116,5 @@ func (agent *KubernetesAgent) collect() {
 		log.Error(err)
 	}
 
-	costService.process(nodes.Items, pods.Items)
+	costService.process(nodes.Items, pods.Items, agent.influxdbClient)
 }
