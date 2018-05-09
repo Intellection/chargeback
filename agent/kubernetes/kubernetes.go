@@ -32,16 +32,16 @@ func NewKubernetesAgent(interval time.Duration) *KubernetesAgent {
 }
 
 func (agent *KubernetesAgent) Run() {
-	log.Info("starting kubernetes agent...")
+	log.Info("starting the kubernetes agent...")
+  quitting := false
 
 	err := agent.init()
 	if err != nil {
-		log.Fatal("error initializing agent")
+		log.Fatal("error initializing the kubernetes agent")
 		os.Exit(1)
 	}
 
 	sigs := make(chan os.Signal, 1)
-	done := false
 
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
@@ -49,17 +49,17 @@ func (agent *KubernetesAgent) Run() {
 		sig := <-sigs
 		fmt.Println()
 		fmt.Println(sig)
-		done = true
+		quitting = true
 	}()
 
 	tick := time.Tick(agent.interval)
 	for _ = range tick {
-		log.Info("collecting...")
+		log.Info("scraping info from kubernetes...")
 
 		agent.collect()
 
-		if done {
-			log.Info("stopping kubernetes agent...")
+		if quitting {
+			log.Info("stopping the kubernetes agent...")
 			os.Exit(0)
 		}
 	}
@@ -69,12 +69,14 @@ func (agent *KubernetesAgent) init() error {
 	kubeconfig := "/Users/zacblazic/.kube/custom_config/sandbox_kube_config.yml"
 
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
-	if err != nil {
+
+  if err != nil {
 		return err
 	}
 
 	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
+
+  if err != nil {
 		return err
 	}
 
