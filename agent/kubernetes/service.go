@@ -17,4 +17,17 @@ func (cs *CostService) process(nodes []v1.Node, pods []v1.Pod) {
 
 	log.Infof("There are %d nodes in the cluster", len(nodes))
 	log.Infof("There are %d pods in the cluster", len(pods))
+
+	var nodeInfoList []NodeInfo
+
+	for _, node := range nodes {
+
+		nodeInfo := NodeInfo{
+			name: node.ObjectMeta.Name,
+		}
+
+		log.Infof("Node: %+v", nodeInfo)
+
+		nodeInfoList = append(nodeInfoList, nodeInfo)
+	}
 }
