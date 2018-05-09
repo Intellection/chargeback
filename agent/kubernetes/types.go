@@ -8,10 +8,10 @@ type NodeInfo struct {
 	cloudProvider     string
 	cost              decimal.Decimal
 	externalID        string
-	allocatableMemory string
-	allocatableCPU    int
-	capacityMemory    string
-	capacityCPU       int
+	allocatableMemory int64
+	allocatableCPU    int64
+	capacityMemory    int64
+	capacityCPU       int64
 	utilizedCPU       int
 	utilizedMemory    int
 }
@@ -19,7 +19,7 @@ type NodeInfo struct {
 type PodInfo struct {
 	name          string
 	labels        map[string]string
-	cpuRequest    int
-	memoryRequest string
+	cpuRequest    int64
+	memoryRequest int64
 	nodeName      string
 }
