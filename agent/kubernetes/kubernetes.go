@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
 
 	"k8s.io/api/core/v1"
@@ -33,10 +34,11 @@ func NewKubernetesAgent(interval time.Duration) *KubernetesAgent {
 
 func (agent *KubernetesAgent) Run() {
 	log.Info("starting the kubernetes agent...")
-  quitting := false
+	quitting := false
 
 	err := agent.init()
 	if err != nil {
+		log.Fatal(err)
 		log.Fatal("error initializing the kubernetes agent")
 		os.Exit(1)
 	}
@@ -66,17 +68,23 @@ func (agent *KubernetesAgent) Run() {
 }
 
 func (agent *KubernetesAgent) init() error {
-	kubeconfig := "/Users/zacblazic/.kube/custom_config/sandbox_kube_config.yml"
+
+	home, err := homedir.Dir()
+	if err != nil {
+		return err
+	}
+
+	kubeconfig := home + "/.kube/custom_config/sandbox_kube_config.yml"
 
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 
-  if err != nil {
+	if err != nil {
 		return err
 	}
 
 	clientset, err := kubernetes.NewForConfig(config)
 
-  if err != nil {
+	if err != nil {
 		return err
 	}
 
