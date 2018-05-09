@@ -104,7 +104,7 @@ func (agent *KubernetesAgent) init() error {
 
 func (agent *KubernetesAgent) collect() {
 
-	costService := NewCostService()
+	costService := NewCostService(agent.influxdbClient)
 
 	nodes, err := agent.clientset.CoreV1().Nodes().List(metav1.ListOptions{})
 	if err != nil {
@@ -116,5 +116,5 @@ func (agent *KubernetesAgent) collect() {
 		log.Error(err)
 	}
 
-	costService.process(nodes.Items, pods.Items, agent.influxdbClient)
+	costService.processRawData(nodes.Items, pods.Items)
 }

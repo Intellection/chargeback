@@ -7,30 +7,33 @@ import (
 )
 
 type CostService struct {
+	influxdbClient client.Client
 }
 
-func NewCostService() *CostService {
-	return &CostService{}
+func NewCostService(influxdbClient client.Client) *CostService {
+	return &CostService{
+		influxdbClient: influxdbClient,
+	}
 }
 
-func (cs *CostService) process(nodes []v1.Node, pods []v1.Pod, influxdbClient client.Client) {
-	log.Info("processing costs...")
-
-	log.Infof("There are %d nodes in the cluster", len(nodes))
-	log.Infof("There are %d pods in the cluster", len(pods))
+func (cs *CostService) processRawData(nodes []v1.Node, pods []v1.Pod) {
+	log.Info("processing raw data...")
 
 	var nodeInfoList []NodeInfo
+	// var podInfoList []PodInfo
 
 	for _, node := range nodes {
-
 		nodeInfo := NodeInfo{
 			name: node.ObjectMeta.Name,
 		}
 
-		log.Infof("Node: %+v", nodeInfo)
+		log.Infof("Node: %+v", node)
 
 		nodeInfoList = append(nodeInfoList, nodeInfo)
 	}
-	log.Infof("InfluxdbClient: %+v", influxdbClient)
+
+	// for _, pod := range pods {
+	// 	podInfo := PodInfo{}
+	// }
 
 }
