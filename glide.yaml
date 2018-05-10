@@ -1,4 +1,7 @@
 package: github.com/Intellection/chargeback
 import:
-  - package: k8s.io/client-go
-    version: v7.0.0
+- package: k8s.io/client-go
+  version: v7.0.0
+- package: github.com/cristim/ec2-instances-info
+- package: github.com/aws/aws-sdk-go
+  version: ^1.13.44

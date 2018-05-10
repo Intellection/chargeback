@@ -1,8 +1,44 @@
-hash: dd8b7feb25e69d630b140da2877f4f14347b8682e16dbfe5c5a5a735960c3b7e
-updated: 2018-05-08T15:36:04.687557+03:00
+hash: 041fcb7e149469b504e41b427215f02b1245b6e2e8543f5c657dc4db1f6a0f29
+updated: 2018-05-09T23:32:55.269329+03:00
 imports:
+- name: github.com/aws/aws-sdk-go
+  version: 31bd69f7db00cbf3d85d129e16d42304cb6e455f
+  subpackages:
+  - aws
+  - aws/awserr
+  - aws/awsutil
+  - aws/client
+  - aws/client/metadata
+  - aws/corehandlers
+  - aws/credentials
+  - aws/credentials/ec2rolecreds
+  - aws/credentials/endpointcreds
+  - aws/credentials/stscreds
+  - aws/defaults
+  - aws/ec2metadata
+  - aws/endpoints
+  - aws/request
+  - aws/session
+  - aws/signer/v4
+  - internal/sdkio
+  - internal/sdkrand
+  - internal/shareddefaults
+  - private/protocol
+  - private/protocol/ec2query
+  - private/protocol/query
+  - private/protocol/query/queryutil
+  - private/protocol/rest
+  - private/protocol/xml/xmlutil
+  - service/ec2
+  - service/sts
+- name: github.com/cristim/ec2-instances-info
+  version: d2ae4817170d37217fffd340b5417b3005cae3d6
+  subpackages:
+  - data
 - name: github.com/fsnotify/fsnotify
   version: 4da3e2cfbabc9f751898f250b49f2439785783a1
+- name: github.com/go-ini/ini
+  version: 7e7da451323b6766da368f8a1e8ec9a88a16b4a0
 - name: github.com/hashicorp/hcl
   version: 42e33e2d55a0ff1d6263f738896ea8c13571a8d0
   subpackages:
@@ -16,6 +52,8 @@ imports:
   - json/token
 - name: github.com/inconshreveable/mousetrap
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
+- name: github.com/jmespath/go-jmespath
+  version: bd40a432e4c76585ef6b72d3fd96fb9b6dc7b68d
 - name: github.com/magiconair/properties
   version: 8d7837e64d3c1ee4e54a880c5a920ab4316fc90a
 - name: github.com/mitchellh/go-homedir
@@ -24,6 +62,8 @@ imports:
   version: d0303fe809921458f417bcf828397a65db30a7e4
 - name: github.com/pelletier/go-toml
   version: 2009e44b6f182e34d8ce081ac2767622937ea3d4
+- name: github.com/pkg/errors
+  version: 816c9085562cd7ee03e7f8188a1cfd942858cded
 - name: github.com/spf13/afero
   version: e67d870304c4bca21331b02f414f970df13aa694
   subpackages:
