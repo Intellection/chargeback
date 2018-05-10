@@ -172,6 +172,9 @@ func calculatePodCost(pod *podInfo, node *nodeInfo) (decimal.Decimal, error) {
 	podCPUUnderUtilizationCost := podCPUUtilizationFactor.Mul(nodeCPUUnderUtilization).Mul(nodeCPUCost)
 	podMemoryUnderUtilizationCost := podMemoryUtilizationFactor.Mul(nodeMemoryUnderUtilization).Mul(nodeMemoryCost)
 
+	nodeCPUOverheadCost := podCPUUtilizationFactor.Mul(nodeCPUUnderUtilization).Mul(nodeCPUCost)
+	nodeMemoryOverheadCost := podMemoryUtilizationFactor.Mul(nodeMemoryUnderUtilization).Mul(nodeMemoryCost)
+
 	podCPUCost := podCPUUtilizationCost.Add(podCPUUnderUtilizationCost)
 	podMemoryCost := podMemoryUtilizationCost.Add(podMemoryUnderUtilizationCost)
 
