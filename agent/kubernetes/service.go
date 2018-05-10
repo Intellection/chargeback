@@ -149,14 +149,6 @@ func (cs *CostService) getPodNodeInfo(nodeName string) *nodeInfo {
 	return nil
 }
 
-func calculateNodeCost(instanceTypeCost decimal.Decimal, diskCost decimal.Decimal) (decimal.Decimal, error) {
-	// Given a node's base instance type cost, together with any additional costs such as the SSD
-	// calculateNodeCost() will return the total cost per month of the node as:
-	// instance_type cost + any SSD mounted on the instance.
-	// return (instanceTypeCost + diskCost), nil
-	return decimal.NewFromString("100.00") // Mocking out $100 for now, per month
-}
-
 func calculatePodCost(pod *podInfo, node *nodeInfo) (decimal.Decimal, error) {
 	// Given a pod's CPU and Memory request, together with the pod's node and it's:
 	// Node cost, allocatable CPU, allocatable Memory, Total CPU, Total Memory,
@@ -179,16 +171,6 @@ func calculatePodCost(pod *podInfo, node *nodeInfo) (decimal.Decimal, error) {
 
 	podCPUUnderUtilizationCost := podCPUUtilizationFactor * podCPUUnderUtilization
 	podMemoryUnderUtilizationCost := podMemoryUtilizationFactor * podMemoryUnderUtilization
-
-	// log.Infof("Pod: %s", pod.name)
-	// log.Infof("CPU utilization percent: %2f%%", podCPUUtilization*100)
-	// log.Infof("Memory utilization percent: %2f%%", podMemoryUtilization*100)
-	//
-	// log.Infof("CPU utilization cost: %s", podCPUUtilizationCost.String())
-	// log.Infof("Memory utilization cost: %s", podMemoryUtilizationCost.String())
-	//
-	// log.Infof("CPU under-utilization cost: %2f", podCPUUnderUtilizationCost)
-	// log.Infof("Memory under-utilization cost: %2f", podMemoryUnderUtilizationCost)
 
 	podCPUCost := podCPUUtilizationCost.Add(decimal.NewFromFloat(podCPUUnderUtilizationCost))
 	podMemoryCost := podMemoryUtilizationCost.Add(decimal.NewFromFloat(podMemoryUnderUtilizationCost))
