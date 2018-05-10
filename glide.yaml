@@ -6,3 +6,7 @@ import:
   version: ~1.5.2
   subpackages:
   - client/v2
+- package: golang.org/x/text
+  version: ^0.3.0
+  subpackages:
+  - secure/bidirule
