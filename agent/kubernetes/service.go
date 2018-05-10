@@ -160,20 +160,20 @@ func calculatePodCost(pod *podInfo, node *nodeInfo) (decimal.Decimal, error) {
 	podCPUUtilizationCost := nodeCPUCost.Mul(decimal.NewFromFloat(podCPUUtilization))
 	podMemoryUtilizationCost := nodeMemoryCost.Mul(decimal.NewFromFloat(podMemoryUtilization))
 
-	podCPUUtilizationFactor := float64(pod.cpuRequest) / float64(node.totalRequestCPU)
-	podMemoryUtilizationFactor := float64(pod.memoryRequest) / float64(node.totalRequestMemory)
+	podCPUUtilizationFactor := decimal.NewFromFloat(float64(pod.cpuRequest) / float64(node.totalRequestCPU))
+	podMemoryUtilizationFactor := decimal.NewFromFloat(float64(pod.memoryRequest) / float64(node.totalRequestMemory))
 
 	nodeCPUUtilization := float64(node.totalRequestCPU) / float64(node.allocatableCPU)
 	nodeMemoryUtilization := float64(node.totalRequestMemory) / float64(node.allocatableMemory)
 
-	nodeCPUUnderUtilization := 1 - nodeCPUUtilization
-	nodeMemoryUnderUtilization := 1 - nodeMemoryUtilization
+	nodeCPUUnderUtilization := decimal.NewFromFloat(1 - nodeCPUUtilization)
+	nodeMemoryUnderUtilization := decimal.NewFromFloat(1 - nodeMemoryUtilization)
 
-	podCPUUnderUtilizationCost := podCPUUtilizationFactor * nodeCPUUnderUtilization * nodeCPUCost
-	podMemoryUnderUtilizationCost := podMemoryUtilizationFactor * nodeMemoryUnderUtilization * nodeMemoryCost
+	podCPUUnderUtilizationCost := podCPUUtilizationFactor.Mul(nodeCPUUnderUtilization).Mul(nodeCPUCost)
+	podMemoryUnderUtilizationCost := podMemoryUtilizationFactor.Mul(nodeMemoryUnderUtilization).Mul(nodeMemoryCost)
 
-	podCPUCost := podCPUUtilizationCost.Add(decimal.NewFromFloat(podCPUUnderUtilizationCost))
-	podMemoryCost := podMemoryUtilizationCost.Add(decimal.NewFromFloat(podMemoryUnderUtilizationCost))
+	podCPUCost := podCPUUtilizationCost.Add(podCPUUnderUtilizationCost)
+	podMemoryCost := podMemoryUtilizationCost.Add(podMemoryUnderUtilizationCost)
 
 	podCost := podCPUCost.Add(podMemoryCost)
 
