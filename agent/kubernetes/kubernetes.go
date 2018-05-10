@@ -64,7 +64,7 @@ func (agent *KubernetesAgent) Run() {
 	}()
 
 	tick := time.Tick(agent.interval)
-	for _ = range tick {
+	for range tick {
 		log.Info("scraping info from kubernetes...")
 
 		agent.work()
