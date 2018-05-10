@@ -15,7 +15,7 @@ type Agent interface {
 func NewAgentFromMode(mode string, influxdbClient client.Client, interval time.Duration) (Agent, error) {
 	switch mode {
 	case "kubernetes":
-		return kubernetes.NewKubernetesAgent(influxdbClient, interval), nil
+		return kubernetes.NewAgent(influxdbClient, interval), nil
 	default:
 		return nil, fmt.Errorf("no matching mode could be found")
 	}

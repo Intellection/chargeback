@@ -16,20 +16,20 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-type KubernetesAgent struct {
+type Agent struct {
 	interval       time.Duration
 	influxdbClient client.Client
 	clientset      kubernetes.Interface
 }
 
-func NewKubernetesAgent(influxdbClient client.Client, interval time.Duration) *KubernetesAgent {
-	return &KubernetesAgent{
+func NewAgent(influxdbClient client.Client, interval time.Duration) *Agent {
+	return &Agent{
 		interval:       interval,
 		influxdbClient: influxdbClient,
 	}
 }
 
-func (agent *KubernetesAgent) Run() {
+func (agent *Agent) Run() {
 	log.Info("starting the kubernetes agent...")
 	quitting := false
 
@@ -76,7 +76,7 @@ func (agent *KubernetesAgent) Run() {
 	}
 }
 
-func (agent *KubernetesAgent) init() error {
+func (agent *Agent) init() error {
 
 	home, err := homedir.Dir()
 	if err != nil {
@@ -102,7 +102,7 @@ func (agent *KubernetesAgent) init() error {
 	return nil
 }
 
-func (agent *KubernetesAgent) work() {
+func (agent *Agent) work() {
 
 	costService := NewCostService(agent.influxdbClient)
 
