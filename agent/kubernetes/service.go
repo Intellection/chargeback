@@ -149,11 +149,8 @@ func (cs *CostService) getPodNodeInfo(nodeName string) *nodeInfo {
 	return nil
 }
 
+// calculatePodCost returns a dollar value cost per month which is a fraction of the node's cost
 func calculatePodCost(pod *podInfo, node *nodeInfo) (decimal.Decimal, error) {
-	// Given a pod's CPU and Memory request, together with the pod's node and it's:
-	// Node cost, allocatable CPU, allocatable Memory, Total CPU, Total Memory,
-	// // calculatePodCost returns a dollar value cost per month which is a fraction of the node's cost
-
 	nodeMemoryCost := node.cost.Mul(decimal.NewFromFloat(0.5))
 	nodeCPUCost := node.cost.Mul(decimal.NewFromFloat(0.5))
 
