@@ -18,6 +18,23 @@ type CostService struct {
 	influxdbClient client.Client
 }
 
+// Struct to hold all the cost information for a single pod
+type PodCostComponents struct {
+	totalCost        decimal.Decimal
+	utilization      decimal.Decimal
+	underUtilization decimal.Decimal
+	nodeOverhead     decimal.Decimal
+}
+
+func NewPodCostComponents(totalCost decimal.Decimal, utilization decimal.Decimal, underUtilization decimal.Decimal, nodeOverhead decimal.Decimal) *PodCostComponents {
+	return &PodCostComponents{
+		totalCost:        totalCost,
+		utilization:      utilization,
+		underUtilization: underUtilization,
+		nodeOverhead:     nodeOverhead,
+	}
+}
+
 // NewCostService creates a new CostService
 func NewCostService(influxdbClient client.Client) *CostService {
 	return &CostService{
@@ -119,10 +136,16 @@ func (cs *CostService) storePodCosts() {
 		tags["node_name"] = podInfo.nodeName
 		tags["namespace"] = podInfo.namespace
 
-		podCost, _ := podInfo.cost.Float64()
+		totalCost, _ := podInfo.cost.totalCost.Float64()
+		utilization, _ := podInfo.cost.utilization.Float64()
+		under_utilization, _ := podInfo.cost.underUtilization.Float64()
+		nod_overhead, _ := podInfo.cost.nodeOverhead.Float64()
 
 		fields := map[string]interface{}{
-			"monthly_cost": podCost,
+			"total_cost":        totalCost,
+			"utilization":       utilization,
+			"under_utilization": under_utilization,
+			"nod_overhead":      nod_overhead,
 		}
 
 		pt, err := client.NewPoint("cost", tags, fields, time.Now())
@@ -150,7 +173,7 @@ func (cs *CostService) getPodNodeInfo(nodeName string) *nodeInfo {
 }
 
 // calculatePodCost returns a dollar value cost per month which is a fraction of the node's cost
-func calculatePodCost(pod *podInfo, node *nodeInfo) (decimal.Decimal, error) {
+func calculatePodCost(pod *podInfo, node *nodeInfo) (*PodCostComponents, error) {
 	nodeMemoryCost := node.cost.Mul(decimal.NewFromFloat(0.5))
 	nodeCPUCost := node.cost.Mul(decimal.NewFromFloat(0.5))
 
@@ -175,10 +198,11 @@ func calculatePodCost(pod *podInfo, node *nodeInfo) (decimal.Decimal, error) {
 	nodeCPUOverheadCost := podCPUUtilizationFactor.Mul(nodeCPUUnderUtilization).Mul(nodeCPUCost)
 	nodeMemoryOverheadCost := podMemoryUtilizationFactor.Mul(nodeMemoryUnderUtilization).Mul(nodeMemoryCost)
 
-	podCPUCost := podCPUUtilizationCost.Add(podCPUUnderUtilizationCost)
-	podMemoryCost := podMemoryUtilizationCost.Add(podMemoryUnderUtilizationCost)
+	utilization := podCPUUtilizationCost.Add(podMemoryUtilizationCost)
+	underUtilization := podCPUUnderUtilizationCost.Add(podMemoryUnderUtilizationCost)
+	nodeOverhead := nodeCPUOverheadCost.Add(nodeMemoryOverheadCost)
 
-	podCost := podCPUCost.Add(podMemoryCost)
+	totalCost := utilization.Add(underUtilization).Add(nodeOverhead)
 
-	return podCost, nil
+	return NewPodCostComponents(totalCost, utilization, underUtilization, nodeOverhead), nil
 }

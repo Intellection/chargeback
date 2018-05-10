@@ -22,5 +22,5 @@ type podInfo struct {
 	cpuRequest    int64
 	memoryRequest int64
 	nodeName      string
-	cost          decimal.Decimal
+	cost          *PodCostComponents
 }
