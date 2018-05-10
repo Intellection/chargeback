@@ -93,7 +93,7 @@ func (cs *CostService) processRawData(nodes []v1.Node, pods []v1.Pod) {
 
 func (cs *CostService) calculatePodCosts() {
 	for _, podInfo := range cs.podInfoList {
-		nodeInfo := cs.getPodnodeInfo(podInfo)
+		nodeInfo := cs.getPodNodeInfo(podInfo.nodeName)
 		cost, _ := calculatePodCost(podInfo, nodeInfo)
 		podInfo.cost = cost
 	}
@@ -139,9 +139,9 @@ func (cs *CostService) storePodCosts() {
 	}
 }
 
-func (cs *CostService) getPodnodeInfo(pod *podInfo) *nodeInfo {
+func (cs *CostService) getPodNodeInfo(nodeName string) *nodeInfo {
 	for _, nodeInfo := range cs.nodeInfoList {
-		if pod.nodeName == nodeInfo.name {
+		if nodeName == nodeInfo.name {
 			return nodeInfo
 		}
 	}
@@ -161,22 +161,15 @@ func calculatePodCost(pod *podInfo, node *nodeInfo) (decimal.Decimal, error) {
 	// Given a pod's CPU and Memory request, together with the pod's node and it's:
 	// Node cost, allocatable CPU, allocatable Memory, Total CPU, Total Memory,
 	// // calculatePodCost returns a dollar value cost per month which is a fraction of the node's cost
-	// cpuReq := float64(pod.cpuRequest)
-	// memReq := float64(pod.memoryRequest)
-	// nodeCost := node.cost
-	// allocatableCPU := float64(node.allocatableCPU)
-	// allocatableMemory := float64(node.allocatableMemory)
-	// capacityCPU := float64(node.capacityCPU)
-	// capacityMemory := float64(node.capacityMemory)
 
-	memoryCost := node.cost.Mul(decimal.NewFromFloat(0.5))
-	cpuCost := node.cost.Mul(decimal.NewFromFloat(0.5))
+	nodeMemoryCost := node.cost.Mul(decimal.NewFromFloat(0.5))
+	nodeCPUCost := node.cost.Mul(decimal.NewFromFloat(0.5))
 
 	podCPUUtilization := float64(pod.cpuRequest) / float64(node.allocatableCPU)
 	podMemoryUtilization := float64(pod.memoryRequest) / float64(node.allocatableMemory)
 
-	podCPUUtilizationCost := cpuCost.Mul(decimal.NewFromFloat(podCPUUtilization))
-	podMemoryUtilizationCost := memoryCost.Mul(decimal.NewFromFloat(podMemoryUtilization))
+	podCPUUtilizationCost := nodeCPUCost.Mul(decimal.NewFromFloat(podCPUUtilization))
+	podMemoryUtilizationCost := nodeMemoryCost.Mul(decimal.NewFromFloat(podMemoryUtilization))
 
 	podCPUUtilizationFactor := float64(pod.cpuRequest) / float64(node.totalRequestCPU)
 	podMemoryUtilizationFactor := float64(pod.memoryRequest) / float64(node.totalRequestMemory)
