@@ -27,7 +27,7 @@ type AWSInstance struct {
 	Type             string
 }
 
-// GetAWSInstanceInfo fetches current price of an instance.
+// GetAWSInstanceInfo fetches current hourly price of an instance.
 func (instance *AWSInstance) GetHourlyPrice() (float64, bool, error) {
 	var (
 		pricePerHour float64
@@ -95,7 +95,7 @@ func GetAWSInstanceInfo(id string, region string) (AWSInstance, error) {
 	return instance, nil
 }
 
-// GetAWSInstanceOnDemandHourlyPrice fetches current AWS on-demand price of an instance.
+// GetAWSInstanceOnDemandHourlyPrice fetches current hourly AWS on-demand price of an instance.
 func GetAWSInstanceOnDemandHourlyPrice(instance *AWSInstance) (float64, bool, error) {
 	var pricePerHour float64
 	var priceFound bool
@@ -123,7 +123,7 @@ func GetAWSInstanceOnDemandHourlyPrice(instance *AWSInstance) (float64, bool, er
 	return pricePerHour, priceFound, nil
 }
 
-// GetAWSInstanceSpotHourlyPrice fetches current AWS spot price of an instance.
+// GetAWSInstanceSpotHourlyPrice fetches current hourly AWS spot price of an instance.
 func GetAWSInstanceSpotHourlyPrice(instance *AWSInstance) (float64, bool, error) {
 	var pricePerHour float64
 	var priceFound bool
