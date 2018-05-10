@@ -19,6 +19,7 @@ type AWSEBSVolume struct {
 type AWSInstance struct {
 	ID         string
 	EBSVolumes []AWSEBSVolume
+	Lifecycle  string
 	Region     string
 	Type       string
 }
@@ -52,9 +53,17 @@ func GetAWSInstanceInfo(id string, region string) (AWSInstance, error) {
 		ebsVolumes = append(ebsVolumes, AWSEBSVolume{ID: *ebsVolume.Ebs.VolumeId})
 	}
 
+	lifecycle := ""
+	if result.Reservations[0].Instances[0].InstanceLifecycle == nil {
+		lifecycle = "scheduled"
+	} else {
+		lifecycle = "spot"
+	}
+
 	instance = AWSInstance{
 		ID:         *result.Reservations[0].Instances[0].InstanceId,
 		EBSVolumes: ebsVolumes,
+		Lifecycle:  lifecycle,
 		Region:     region,
 		Type:       *result.Reservations[0].Instances[0].InstanceType,
 	}
