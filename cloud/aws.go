@@ -65,12 +65,13 @@ func GetAWSInstanceInfo(id string, region string) (AWSInstance, error) {
 }
 
 // GetAWSInstanceOnDemandHourlyPrice fetches current AWS on-demand price of an instance.
-func GetAWSInstanceOnDemandHourlyPrice(instance *AWSInstance) (float64, error) {
+func GetAWSInstanceOnDemandHourlyPrice(instance *AWSInstance) (float64, bool, error) {
 	var pricePerHour float64
+	var priceFound bool
 
 	data, err := ec2instancesinfo.Data()
 	if err != nil {
-		return pricePerHour, err
+		return pricePerHour, priceFound, err
 	}
 
 	for _, typeInfo := range *data {
@@ -78,6 +79,7 @@ func GetAWSInstanceOnDemandHourlyPrice(instance *AWSInstance) (float64, error) {
 			for region, price := range typeInfo.Pricing {
 				if region == instance.Region {
 					pricePerHour = price.Linux.OnDemand
+					priceFound = true
 
 					break
 				}
@@ -87,5 +89,5 @@ func GetAWSInstanceOnDemandHourlyPrice(instance *AWSInstance) (float64, error) {
 		}
 	}
 
-	return pricePerHour, nil
+	return pricePerHour, priceFound, nil
 }
