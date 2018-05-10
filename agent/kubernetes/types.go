@@ -2,7 +2,6 @@ package kubernetes
 
 import "github.com/shopspring/decimal"
 
-// TODO: add storage
 type nodeInfo struct {
 	name               string
 	cloudProvider      string
