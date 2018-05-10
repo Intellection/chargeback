@@ -78,8 +78,12 @@ func GetAWSInstanceOnDemandHourlyPrice(instance *AWSInstance) (float64, error) {
 			for region, price := range typeInfo.Pricing {
 				if region == instance.Region {
 					pricePerHour = price.Linux.OnDemand
+
+					break
 				}
 			}
+
+			break
 		}
 	}
 
