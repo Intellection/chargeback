@@ -20,13 +20,17 @@ type Agent struct {
 	interval       time.Duration
 	influxdbClient client.Client
 	clientset      kubernetes.Interface
+	costService    *CostService
 }
 
 // NewAgent creates a Kubernetes Agent
 func NewAgent(influxdbClient client.Client, interval time.Duration) *Agent {
+	costService := NewCostService(influxdbClient)
+
 	return &Agent{
 		interval:       interval,
 		influxdbClient: influxdbClient,
+		costService:    costService,
 	}
 }
 
@@ -65,16 +69,33 @@ func (agent *Agent) Run() {
 
 	}()
 
-	tick := time.Tick(agent.interval)
-	for range tick {
-		log.Info("scraping info from kubernetes...")
-
-		agent.work()
+	for {
+		startTime := time.Now()
 
 		if quitting {
 			log.Info("stopping the kubernetes agent...")
 			os.Exit(0)
 		}
+
+		// may take longer than 30 seconds
+		agent.collect()
+
+		endTime := time.Now()
+		elapsedTime := endTime.Sub(startTime)
+		sleepTime := agent.interval - elapsedTime
+
+		log.Infof("elapsed time: %v", elapsedTime)
+
+		if sleepTime >= 0 {
+			log.Infof("sleeping for: %v at %v", sleepTime, time.Now())
+			time.Sleep(sleepTime)
+		} else {
+			log.Warn("you should consider increasing your interval seconds to get accurate info")
+		}
+
+		log.Infof("writing at: %v", time.Now())
+
+		agent.write()
 	}
 }
 
@@ -96,9 +117,8 @@ func (agent *Agent) init() error {
 	return nil
 }
 
-func (agent *Agent) work() {
-
-	costService := NewCostService(agent.influxdbClient)
+func (agent *Agent) collect() {
+	agent.costService = NewCostService(agent.influxdbClient)
 
 	nodes, err := agent.clientset.CoreV1().Nodes().List(metav1.ListOptions{})
 	if err != nil {
@@ -110,7 +130,10 @@ func (agent *Agent) work() {
 		log.Error(err)
 	}
 
-	costService.processRawData(nodes.Items, pods.Items)
-	costService.calculatePodCosts()
-	costService.storePodCosts()
+	agent.costService.processRawData(nodes.Items, pods.Items)
+	agent.costService.calculatePodCosts()
+}
+
+func (agent *Agent) write() {
+	agent.costService.storePodCosts()
 }

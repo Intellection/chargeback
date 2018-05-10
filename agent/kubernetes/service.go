@@ -188,6 +188,11 @@ func (cs *CostService) getPodNodeInfo(nodeName string) *nodeInfo {
 
 // calculatePodCost returns a dollar value cost per month which is a fraction of the node's cost
 func (cs *CostService) calculatePodCost(pod *podInfo, node *nodeInfo) (*PodCostComponents, error) {
+	var verbose bool
+	if pod.name == "data-collector-app-1662455165-2bsqq" {
+		verbose = true
+	}
+
 	nodeHourlyPrice, _ := node.hourlyPrice.Float64()
 	nodeMonthlyPrice := decimal.NewFromFloat(nodeHourlyPrice * 720)
 
@@ -220,6 +225,31 @@ func (cs *CostService) calculatePodCost(pod *podInfo, node *nodeInfo) (*PodCostC
 	nodeOverhead := nodeMemoryOverheadCost
 
 	total := utilization.Add(underUtilization).Add(nodeOverhead)
+
+	if verbose {
+		log.Infof("nodeHourlyPrice: %f", nodeHourlyPrice)
+		log.Infof("nodeMonthlyPrice: %s", nodeMonthlyPrice.String())
+		log.Infof("nodeMemoryCost: %s", nodeMemoryCost.String())
+		log.Infof("nodeCPUCost: %s", nodeCPUCost.String())
+		log.Infof("podCPUUtilization: %f", podCPUUtilization)
+		log.Infof("podMemoryUtilization: %f", podMemoryUtilization)
+		log.Infof("podCPUUtilizationCost: %s", podCPUUtilizationCost.String())
+		log.Infof("podMemoryUtilizationCost: %s", podMemoryUtilizationCost.String())
+		log.Infof("podCPUUtilizationFactor: %s", podCPUUtilizationFactor.String())
+		log.Infof("podMemoryUtilizationFactor: %s", podMemoryUtilizationFactor.String())
+		log.Infof("nodeCPUUtilization: %f", nodeCPUUtilization)
+		log.Infof("nodeMemoryUtilization: %f", nodeMemoryUtilization)
+		log.Infof("nodeCPUUnderUtilization: %s", nodeCPUUnderUtilization.String())
+		log.Infof("nodeMemoryUnderUtilization: %s", nodeMemoryUnderUtilization.String())
+		log.Infof("podCPUUnderUtilizationCost: %s", podCPUUnderUtilizationCost.String())
+		log.Infof("podMemoryUnderUtilizationCost: %s", podMemoryUnderUtilizationCost.String())
+		log.Infof("nodeMemoryOverhead: %s", nodeMemoryOverhead.String())
+		log.Infof("nodeMemoryOverheadCost: %s", nodeMemoryOverheadCost.String())
+		log.Infof("utilization: %s", utilization.String())
+		log.Infof("underUtilization: %s", underUtilization.String())
+		log.Infof("nodeOverhead: %s", nodeOverhead.String())
+		log.Infof("total: %s", total.String())
+	}
 
 	podCostComponents := &PodCostComponents{
 		total:            total,

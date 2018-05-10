@@ -46,7 +46,7 @@ func init() {
 	rootCmd.AddCommand(agentCmd)
 
 	agentCmd.PersistentFlags().String("mode", "", "the mode the agent should run as (aws, gce or kubernetes)")
-	agentCmd.PersistentFlags().Duration("interval", 10*time.Second, "the interval at which to process cost info")
+	agentCmd.PersistentFlags().Duration("interval", 30*time.Second, "the interval at which to process cost info")
 	agentCmd.PersistentFlags().String("influx-host", "http://localhost", "the influxdb host name")
 	agentCmd.PersistentFlags().Int("influx-port", 8086, "the influxdb port")
 	agentCmd.PersistentFlags().String("influx-username", "", "the influxdb username")
