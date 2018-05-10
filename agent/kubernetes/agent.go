@@ -8,12 +8,11 @@ import (
 	"time"
 
 	"github.com/influxdata/influxdb/client/v2"
-	"github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/rest"
 )
 
 // Agent will periodically collect and store cost information about a cluster
@@ -81,17 +80,9 @@ func (agent *Agent) Run() {
 
 func (agent *Agent) init() error {
 
-	home, err := homedir.Dir()
+	config, err := rest.InClusterConfig()
 	if err != nil {
-		return err
-	}
-
-	kubeconfig := home + "/.kube/custom_config/production_kube_config.yml"
-
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
-
-	if err != nil {
-		return err
+		panic(err.Error())
 	}
 
 	clientset, err := kubernetes.NewForConfig(config)
