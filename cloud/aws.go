@@ -27,7 +27,7 @@ type AWSInstance struct {
 	Type             string
 }
 
-// GetAWSInstanceInfo fetches current hourly price of an instance.
+// GetHourlyPrice fetches current hourly price of an instance.
 func (instance *AWSInstance) GetHourlyPrice() (float64, bool, error) {
 	var (
 		pricePerHour float64
