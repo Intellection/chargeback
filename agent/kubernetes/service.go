@@ -139,14 +139,14 @@ func (cs *CostService) storePodCosts() {
 
 		totalCost, _ := podInfo.cost.totalCost.Float64()
 		utilization, _ := podInfo.cost.utilization.Float64()
-		under_utilization, _ := podInfo.cost.underUtilization.Float64()
-		nod_overhead, _ := podInfo.cost.nodeOverhead.Float64()
+		underUtilization, _ := podInfo.cost.underUtilization.Float64()
+		nodOverhead, _ := podInfo.cost.nodeOverhead.Float64()
 
 		fields := map[string]interface{}{
 			"total_cost":        totalCost,
 			"utilization":       utilization,
-			"under_utilization": under_utilization,
-			"nod_overhead":      nod_overhead,
+			"under_utilization": underUtilization,
+			"nod_overhead":      nodOverhead,
 		}
 
 		pt, err := client.NewPoint("cost", tags, fields, time.Now())
