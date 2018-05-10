@@ -3,7 +3,7 @@ package kubernetes
 import "github.com/shopspring/decimal"
 
 // TODO: add storage
-type NodeInfo struct {
+type nodeInfo struct {
 	name               string
 	cloudProvider      string
 	cost               decimal.Decimal
@@ -16,7 +16,7 @@ type NodeInfo struct {
 	totalRequestMemory int64 // Total utilized memory used by scheduled pods on the node
 }
 
-type PodInfo struct {
+type podInfo struct {
 	name          string
 	namespace     string
 	labels        map[string]string

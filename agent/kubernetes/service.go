@@ -11,8 +11,8 @@ import (
 )
 
 type CostService struct {
-	nodeInfoList   []*NodeInfo
-	podInfoList    []*PodInfo
+	nodeInfoList   []*nodeInfo
+	podInfoList    []*podInfo
 	influxdbClient client.Client
 }
 
@@ -34,7 +34,7 @@ func (cs *CostService) processRawData(nodes []v1.Node, pods []v1.Pod) {
 		// mocked cost for now
 		cost, _ := decimal.NewFromString("100")
 
-		nodeInfo := &NodeInfo{
+		nodeInfo := &nodeInfo{
 			name:              node.ObjectMeta.Name,
 			externalID:        node.Spec.ExternalID,
 			cloudProvider:     strings.Split(node.Spec.ProviderID, ":")[0],
@@ -62,7 +62,7 @@ func (cs *CostService) processRawData(nodes []v1.Node, pods []v1.Pod) {
 			podMemoryRequest += containerMemoryRequest.Value()
 		}
 
-		podInfo := &PodInfo{
+		podInfo := &podInfo{
 			name:          pod.ObjectMeta.Name,
 			namespace:     pod.ObjectMeta.Namespace,
 			nodeName:      pod.Spec.NodeName,
@@ -90,7 +90,7 @@ func (cs *CostService) processRawData(nodes []v1.Node, pods []v1.Pod) {
 
 func (cs *CostService) calculatePodCosts() {
 	for _, podInfo := range cs.podInfoList {
-		nodeInfo := cs.getPodNodeInfo(podInfo)
+		nodeInfo := cs.getPodnodeInfo(podInfo)
 		cost, _ := calculatePodCost(podInfo, nodeInfo)
 		podInfo.cost = cost
 	}
@@ -136,7 +136,7 @@ func (cs *CostService) storePodCosts() {
 	}
 }
 
-func (cs *CostService) getPodNodeInfo(pod *PodInfo) *NodeInfo {
+func (cs *CostService) getPodnodeInfo(pod *podInfo) *nodeInfo {
 	for _, nodeInfo := range cs.nodeInfoList {
 		if pod.nodeName == nodeInfo.name {
 			return nodeInfo
@@ -154,7 +154,7 @@ func calculateNodeCost(instanceTypeCost decimal.Decimal, diskCost decimal.Decima
 	return decimal.NewFromString("100.00") // Mocking out $100 for now, per month
 }
 
-func calculatePodCost(pod *PodInfo, node *NodeInfo) (decimal.Decimal, error) {
+func calculatePodCost(pod *podInfo, node *nodeInfo) (decimal.Decimal, error) {
 	// Given a pod's CPU and Memory request, together with the pod's node and it's:
 	// Node cost, allocatable CPU, allocatable Memory, Total CPU, Total Memory,
 	// // calculatePodCost returns a dollar value cost per month which is a fraction of the node's cost
