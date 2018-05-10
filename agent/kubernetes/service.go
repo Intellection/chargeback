@@ -4,6 +4,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Intellection/chargeback/cloud"
 	"github.com/influxdata/influxdb/client/v2"
 	"github.com/shopspring/decimal"
 	log "github.com/sirupsen/logrus"
@@ -37,13 +38,17 @@ func (cs *CostService) processRawData(nodes []v1.Node, pods []v1.Pod) {
 	log.Info("processing raw data...")
 
 	for _, node := range nodes {
+		externalID := node.Spec.ExternalID
 		allocatableMemory := node.Status.Allocatable["memory"]
 		allocatableCPU := node.Status.Allocatable["cpu"]
 		capacityMemory := node.Status.Capacity["memory"]
 		capacityCPU := node.Status.Capacity["cpu"]
+		region := node.ObjectMeta.Labels["failure-domain.beta.kubernetes.io/region"]
 
-		// mocked cost for now
-		cost, _ := decimal.NewFromString("100")
+		hourlyPrice, err := getNodeHourlyPrice(externalID, region)
+		if err != nil {
+			log.Error(err)
+		}
 
 		nodeInfo := &nodeInfo{
 			name:              node.ObjectMeta.Name,
@@ -53,7 +58,7 @@ func (cs *CostService) processRawData(nodes []v1.Node, pods []v1.Pod) {
 			allocatableCPU:    allocatableCPU.MilliValue(),
 			capacityMemory:    capacityMemory.Value(),
 			capacityCPU:       capacityCPU.MilliValue(),
-			cost:              cost,
+			hourlyPrice:       hourlyPrice,
 		}
 
 		cs.nodeInfoList = append(cs.nodeInfoList, nodeInfo)
@@ -99,10 +104,28 @@ func (cs *CostService) processRawData(nodes []v1.Node, pods []v1.Pod) {
 	}
 }
 
+func getNodeHourlyPrice(instanceID string, region string) (decimal.Decimal, error) {
+	instance, err := cloud.GetAWSInstanceInfo(instanceID, region)
+	if err != nil {
+		return decimal.Zero, err
+	}
+
+	hourlyPrice, ok, err := instance.GetHourlyPrice()
+	if err != nil {
+		return decimal.Zero, err
+	}
+
+	if !ok {
+		return decimal.Zero, err
+	}
+
+	return decimal.NewFromFloat(hourlyPrice), nil
+}
+
 func (cs *CostService) calculatePodCosts() {
 	for _, podInfo := range cs.podInfoList {
 		nodeInfo := cs.getPodNodeInfo(podInfo.nodeName)
-		cost, _ := calculatePodCost(podInfo, nodeInfo)
+		cost, _ := cs.calculatePodCost(podInfo, nodeInfo)
 		podInfo.cost = cost
 	}
 }
@@ -164,9 +187,12 @@ func (cs *CostService) getPodNodeInfo(nodeName string) *nodeInfo {
 }
 
 // calculatePodCost returns a dollar value cost per month which is a fraction of the node's cost
-func calculatePodCost(pod *podInfo, node *nodeInfo) (*PodCostComponents, error) {
-	nodeMemoryCost := node.cost.Mul(decimal.NewFromFloat(0.5))
-	nodeCPUCost := node.cost.Mul(decimal.NewFromFloat(0.5))
+func (cs *CostService) calculatePodCost(pod *podInfo, node *nodeInfo) (*PodCostComponents, error) {
+	nodeHourlyPrice, _ := node.hourlyPrice.Float64()
+	nodeMonthlyPrice := decimal.NewFromFloat(nodeHourlyPrice * 720)
+
+	nodeMemoryCost := nodeMonthlyPrice.Mul(decimal.NewFromFloat(0.5))
+	nodeCPUCost := nodeMonthlyPrice.Mul(decimal.NewFromFloat(0.5))
 
 	podCPUUtilization := float64(pod.cpuRequest) / float64(node.allocatableCPU)
 	podMemoryUtilization := float64(pod.memoryRequest) / float64(node.allocatableMemory)

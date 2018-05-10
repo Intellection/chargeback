@@ -5,7 +5,7 @@ import "github.com/shopspring/decimal"
 type nodeInfo struct {
 	name               string
 	cloudProvider      string
-	cost               decimal.Decimal
+	hourlyPrice        decimal.Decimal
 	externalID         string
 	capacityMemory     int64 // Full memory capacity of the node in megabytes
 	capacityCPU        int64 // Number of CPUs the node has access to
