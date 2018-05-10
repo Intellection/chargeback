@@ -1,0 +1,47 @@
+version: "3"
+services:
+  grafana:
+    image: grafana/grafana:5.1.2
+    environment:
+      GF_DATABASE_TYPE: mysql
+      GF_DATABASE_HOST: mysql:3306
+      GF_DATABASE_NAME: grafana
+      GF_DATABASE_USER: grafana
+      GF_DATABASE_PASSWORD: sekretpassword
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SECURITY_SECRET_KEY: b9zoPsMmSW2YcwTIpOOh
+      GF_LOG_CONSOLE_LEVEL: debug
+    ports:
+      - "3000:3000"
+    links:
+      - mysql
+      - influxdb
+
+  influxdb:
+    image: influxdb:1.5.2-alpine
+    volumes:
+      - influxdb_data:/var/lib/influxdb
+    ports:
+      - "8086:8086"
+    expose:
+      - "8086"
+
+  mysql:
+    image: mysql:5.7.18
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: "true"
+      MYSQL_USER: grafana
+      MYSQL_PASSWORD: sekretpassword
+      MYSQL_DATABASE: grafana
+    volumes:
+      - mysql_data:/var/lib/mysql
+    expose:
+      - "3306"
+
+
+volumes:
+  influxdb_data:
+    driver: local
+  mysql_data:
+    driver: local
