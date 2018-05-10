@@ -10,12 +10,15 @@ import (
 	"k8s.io/api/core/v1"
 )
 
+// CostService processes kubernetes node and pod info and calculates the costs
+// of each pod in the cluster
 type CostService struct {
 	nodeInfoList   []*nodeInfo
 	podInfoList    []*podInfo
 	influxdbClient client.Client
 }
 
+// NewCostService creates a new CostService
 func NewCostService(influxdbClient client.Client) *CostService {
 	return &CostService{
 		influxdbClient: influxdbClient,

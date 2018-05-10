@@ -16,12 +16,14 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
+// Agent will periodically collect and store cost information about a cluster
 type Agent struct {
 	interval       time.Duration
 	influxdbClient client.Client
 	clientset      kubernetes.Interface
 }
 
+// NewAgent creates a Kubernetes Agent
 func NewAgent(influxdbClient client.Client, interval time.Duration) *Agent {
 	return &Agent{
 		interval:       interval,
@@ -29,6 +31,7 @@ func NewAgent(influxdbClient client.Client, interval time.Duration) *Agent {
 	}
 }
 
+// Run starts the main control loop of the Agent
 func (agent *Agent) Run() {
 	log.Info("starting the kubernetes agent...")
 	quitting := false
