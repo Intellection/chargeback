@@ -18,7 +18,7 @@ type CostService struct {
 	influxdbClient client.Client
 }
 
-// Struct to hold all the cost information for a single pod
+// PodCostComponents struct to hold all the cost information for a single pod
 type PodCostComponents struct {
 	totalCost        decimal.Decimal
 	utilization      decimal.Decimal
@@ -26,6 +26,7 @@ type PodCostComponents struct {
 	nodeOverhead     decimal.Decimal
 }
 
+// NewPodCostComponents creates a new PodCostComponents
 func NewPodCostComponents(totalCost decimal.Decimal, utilization decimal.Decimal, underUtilization decimal.Decimal, nodeOverhead decimal.Decimal) *PodCostComponents {
 	return &PodCostComponents{
 		totalCost:        totalCost,
