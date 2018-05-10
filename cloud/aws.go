@@ -59,8 +59,6 @@ func GetAWSInstanceInfo(id string, region string) (AWSInstance, error) {
 		Type:       *result.Reservations[0].Instances[0].InstanceType,
 	}
 
-	fmt.Println(*result.Reservations[0].Instances[0])
-
 	return instance, nil
 }
 
