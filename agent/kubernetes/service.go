@@ -20,20 +20,10 @@ type CostService struct {
 
 // PodCostComponents struct to hold all the cost information for a single pod
 type PodCostComponents struct {
-	totalCost        decimal.Decimal
+	total            decimal.Decimal
 	utilization      decimal.Decimal
 	underUtilization decimal.Decimal
 	nodeOverhead     decimal.Decimal
-}
-
-// NewPodCostComponents creates a new PodCostComponents
-func NewPodCostComponents(totalCost decimal.Decimal, utilization decimal.Decimal, underUtilization decimal.Decimal, nodeOverhead decimal.Decimal) *PodCostComponents {
-	return &PodCostComponents{
-		totalCost:        totalCost,
-		utilization:      utilization,
-		underUtilization: underUtilization,
-		nodeOverhead:     nodeOverhead,
-	}
 }
 
 // NewCostService creates a new CostService
@@ -137,13 +127,13 @@ func (cs *CostService) storePodCosts() {
 		tags["node_name"] = podInfo.nodeName
 		tags["namespace"] = podInfo.namespace
 
-		totalCost, _ := podInfo.cost.totalCost.Float64()
+		total, _ := podInfo.cost.total.Float64()
 		utilization, _ := podInfo.cost.utilization.Float64()
 		underUtilization, _ := podInfo.cost.underUtilization.Float64()
 		nodOverhead, _ := podInfo.cost.nodeOverhead.Float64()
 
 		fields := map[string]interface{}{
-			"total_cost":        totalCost,
+			"total":             total,
 			"utilization":       utilization,
 			"under_utilization": underUtilization,
 			"nod_overhead":      nodOverhead,
@@ -203,7 +193,13 @@ func calculatePodCost(pod *podInfo, node *nodeInfo) (*PodCostComponents, error) 
 	underUtilization := podCPUUnderUtilizationCost.Add(podMemoryUnderUtilizationCost)
 	nodeOverhead := nodeCPUOverheadCost.Add(nodeMemoryOverheadCost)
 
-	totalCost := utilization.Add(underUtilization).Add(nodeOverhead)
+	total := utilization.Add(underUtilization).Add(nodeOverhead)
 
-	return NewPodCostComponents(totalCost, utilization, underUtilization, nodeOverhead), nil
+	podCostComponents := &PodCostComponents{
+		total:            total,
+		utilization:      utilization,
+		underUtilization: underUtilization,
+		nodeOverhead:     nodeOverhead,
+	}
+	return podCostComponents, nil
 }
