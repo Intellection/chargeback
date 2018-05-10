@@ -1,6 +1,7 @@
 package cloud
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -24,6 +25,25 @@ type AWSInstance struct {
 	Lifecycle        string
 	Region           string
 	Type             string
+}
+
+func (instance *AWSInstance) GetHourlyPrice() (float64, bool, error) {
+	var (
+		pricePerHour float64
+		priceFound   bool
+		err          error
+	)
+
+	switch instance.Lifecycle {
+	case "scheduled":
+		pricePerHour, priceFound, err = GetAWSInstanceOnDemandHourlyPrice(instance)
+	case "spot":
+		pricePerHour, priceFound, err = GetAWSInstanceSpotHourlyPrice(instance)
+	default:
+		err = errors.New("invalid lifecycle")
+	}
+
+	return pricePerHour, priceFound, err
 }
 
 // GetAWSInstanceInfo gets information on an AWS instance
